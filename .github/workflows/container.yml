@@ -16,11 +16,11 @@ jobs:
         with:
           context: ./api
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-test:latest, ${{ vars.DOCKERHUB_USERNAME }}/github-actions-test:${{ github.run_number }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-api:latest, ${{ vars.DOCKERHUB_USERNAME }}/github-actions-test:${{ github.run_number }}
       - name: Build and push web image to Docker Hub
         uses: docker/build-push-action@v6
         with:
           context: ./web
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-test:latest, ${{ vars.DOCKERHUB_USERNAME }}/github-actions-test:${{ github.run_number }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-web:latest, ${{ vars.DOCKERHUB_USERNAME }}/github-actions-test:${{ github.run_number }}
       

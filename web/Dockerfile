@@ -6,7 +6,7 @@ RUN npm install
 RUN npm install --production
 
 #Run stage
-FROM node:20-alpine AS run
+FROM node:20-alpine 
 ENV NODE_ENV=production
 
 RUN addgroup -g 1001 -S user_group
