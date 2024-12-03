@@ -16,4 +16,4 @@ jobs:
         with:
           context: ./api
           push: true
-          tags: tilshansanoj/github-actions-test:latest, tilshansanoj/github-actions-test: {{ github.run_number }}
+          tags: tilshansanoj/github-actions-test:latest, tilshansanoj/github-actions-test: ${{ github.run_number }}
