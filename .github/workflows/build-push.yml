@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main # Workflow trigger on pushes to this branch
+      - master # Workflow trigger on pushes to this branch
 
 jobs:
   # build-api:
