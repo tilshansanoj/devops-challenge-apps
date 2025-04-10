@@ -84,13 +84,8 @@ jobs:
           username: ${{ vars.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          
-      - name: Removing ongoing docker compose components
-        run: cd devops-challenge-apps && docker compose down
-        
-      - name: Running the docker compose
-        run: |
-          cd devops-challenge-apps && git switch final-project && git pull && docker compose down && docker compose up -d
-          cd devops-challenge-apps && docker compose up -d
-          cd devops-challenge-apps
-          docker compose down && docker compose up -d
+          script: |
+            cd devops-challenge-apps && git switch final-project && git pull && docker compose down && docker compose up -d
+            cd devops-challenge-apps && docker compose up -d
+            cd devops-challenge-apps
+            docker compose down && docker compose up -d
