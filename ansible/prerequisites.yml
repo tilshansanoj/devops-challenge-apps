@@ -1,0 +1,45 @@
+---
+- name: Install AWS CLI 
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Install unzip and curl
+      apt:
+        name:
+          - unzip
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Download AWS CLI 
+      get_url:
+        url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /tmp/awscliv2.zip
+        mode: '0644'
+
+    - name: Unzip AWS CLI
+      unarchive:
+        src: /tmp/awscliv2.zip
+        dest: /tmp
+        remote_src: yes
+
+    - name: Install AWS CLI
+      command: /tmp/aws/install
+      args:
+        creates: /usr/local/bin/aws
+
+    - name: Clean up AWS CLI installation files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/awscliv2.zip
+        - /tmp/aws
+    - name: Configure AWS Access Key
+      command: aws configure set aws_access_key_id {{ aws_access_key }}
+
+    - name: Configure AWS Secret Key
+      command: aws configure set aws_secret_access_key {{ aws_secret_key }}
+
+    - name: Configure AWS Default Region
+      command: aws configure set region {{ aws_region }}

@@ -1,62 +1,68 @@
 on:
-  push:
-    branches:
-      - master # Workflow trigger on pushes to this branch
+  # push:
+  #   branches: [final-project]
+  workflow_dispatch: 
 
 jobs:
-  # build-api:
-  #   runs-on: ubuntu-latest
+  build-api:
+    runs-on: ubuntu-latest
 
-  #   steps:
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+  
 
-  #   #Checkout the code from repository
-  #   - name: Checkout the code
-  #     uses: actions/checkout@v4
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-southeast-1
 
-  #   #Login to Docker hub 
-  #   #using docker/login-action
-  #   - name: Login to Docker Hub
-  #     uses: docker/login-action@v3
-  #     with:
-  #       username: ${{ vars.DOCKERHUB_USERNAME }} 
-  #       password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, Tag, and Push the Image to Amazon ECR
+      id: build-image 
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: app-backend
+        IMAGE_TAG: ${{ github.run_number }}.${{ github.run_attempt }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
     
-  #   #Build and push the docker image to the docker hub 
-  #   #using docker/build-push-action
-  #   - name: Build and push to Docker hub
-  #     uses: docker/build-push-action@v6
-  #     with: 
-  #       context: ./api
-  #       push: true
-  #       #tagging the built image
-  #       tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-api:latest, ${{ vars.DOCKERHUB_USERNAME }}/github-actions-api:${{ github.run_number}}
 
-  # build-web:
-  #   runs-on: ubuntu-latest
+  build-web:
+    runs-on: ubuntu-latest
 
-  #   steps:
+    steps:
 
-  #   #Checkout the code from repository
-  #   - name: Checkout the code
-  #     uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+  
 
-  #   #Login to Docker hub 
-  #   #using docker/login-action
-  #   - name: Login to Docker Hub
-  #     uses: docker/login-action@v3
-  #     with:
-  #       username: ${{ vars.DOCKERHUB_USERNAME }} 
-  #       password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-    
-  #   #Build and push the docker image to the docker hub 
-  #   #using docker/build-push-action
-  #   - name: Build and push to Docker hub
-  #     uses: docker/build-push-action@v6
-  #     with: 
-  #       context: ./web
-  #       push: true
-  #       #tagging the built image
-  #       tags: ${{ vars.DOCKERHUB_USERNAME }}/github-actions-web:latest, ${{ vars.DOCKERHUB_USERNAME }}/github-actions-web:${{ github.run_number}}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-southeast-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, Tag, and Push the Image to Amazon ECR
+      id: build-image 
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: app-backend
+        IMAGE_TAG: ${{ github.run_number }}.${{ github.run_attempt }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
   
   #Deployment stage using the previously built web and api images
   deploy:
@@ -75,18 +81,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
 
-      # - name: Cloning the repository
-      #   run: git@github.com/tilshansanoj/devops-challenge-apps.git
+      - name: Cloning the repository
+        run: git@github.com/tilshansanoj/devops-challenge-apps.git
           
-      #   #run: git clone https://github.com/tilshansanoj/devops-challenge-apps.git 
-
-      # - name: Removing ongoing docker compose components
-      #   run: cd devops-challenge-apps && docker compose down
+      - name: Removing ongoing docker compose components
+        run: cd devops-challenge-apps && docker compose down
         
-      # - name: Running the docker compose
-      #   run: cd devops-challenge-apps && docker compose up -d
-
-          # script: |
-          #   git clone https://github.com/tilshansanoj/devops-challenge-apps.git 
-          #   cd devops-challenge-apps
-          #   docker compose down && docker compose up -d
+      - name: Running the docker compose
+        run: |
+          cd devops-challenge-apps && docker compose up -d
+          git clone https://github.com/tilshansanoj/devops-challenge-apps.git 
+          cd devops-challenge-apps
+          docker compose down && docker compose up -d

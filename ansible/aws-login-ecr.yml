@@ -1,0 +1,51 @@
+- name: Install AWS CLI, configure credentials, login to ECR, and run a script
+  hosts: localhost
+  become: true
+  vars:
+    aws_region: us-east-1
+    ecr_account_id: "123456789012"
+    aws_access_key: "YOUR_AWS_ACCESS_KEY"
+    aws_secret_key: "YOUR_AWS_SECRET_KEY"
+
+  tasks:
+    - name: Install unzip and curl
+      apt:
+        name:
+          - unzip
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Download AWS CLI v2
+      get_url:
+        url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /tmp/awscliv2.zip
+        mode: '0644'
+
+    - name: Unzip AWS CLI
+      unarchive:
+        src: /tmp/awscliv2.zip
+        dest: /tmp
+        remote_src: yes
+
+    - name: Install AWS CLI
+      command: /tmp/aws/install
+      args:
+        creates: /usr/local/bin/aws
+
+    - name: Configure AWS Access Key
+      command: aws configure set aws_access_key_id {{ aws_access_key }}
+
+    - name: Configure AWS Secret Key
+      command: aws configure set aws_secret_access_key {{ aws_secret_key }}
+
+    - name: Configure AWS Default Region
+      command: aws configure set region {{ aws_region }}
+
+    - name: Get AWS ECR login password
+      command: aws ecr get-login-password --region {{ aws_region }}
+      register: ecr_password
+
+    - name: Login to AWS ECR
+      shell: |
+        echo "{{ ecr_password.stdout }}" | docker login --username AWS --password-stdin {{ ecr_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com
