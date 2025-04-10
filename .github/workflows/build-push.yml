@@ -84,16 +84,13 @@ jobs:
           username: ${{ vars.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-
-      - name: Cloning the repository
-        run: git@github.com/tilshansanoj/devops-challenge-apps.git
           
       - name: Removing ongoing docker compose components
         run: cd devops-challenge-apps && docker compose down
         
       - name: Running the docker compose
         run: |
+          cd devops-challenge-apps && git switch final-project && git pull && docker compose down && docker compose up -d
           cd devops-challenge-apps && docker compose up -d
-          git clone https://github.com/tilshansanoj/devops-challenge-apps.git 
           cd devops-challenge-apps
           docker compose down && docker compose up -d
