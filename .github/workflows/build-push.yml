@@ -1,6 +1,6 @@
 on:
-  # push:
-  #   branches: [final-project]
+  push:
+    branches: [final-project]
   workflow_dispatch: 
 
 jobs:
