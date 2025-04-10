@@ -7,8 +7,7 @@ services:
     environment:
       - PORT=${WEB_PORT}
       - API_HOST=${API_HOST}
-    networks:
-      - backend
+    network_mode: host
     depends_on:
       - api    
     restart: unless-stopped
@@ -21,15 +20,6 @@ services:
     environment:
       - PORT=8081:8081
       - DB=${API_DB}
-    networks:
-      - backend    
+    network_mode: host
     restart: unless-stopped
   
-
-networks:
-
-  frontend:
-    driver: bridge
-    
-  backend:
-    driver: bridge
