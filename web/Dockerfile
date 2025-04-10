@@ -1,7 +1,7 @@
 #Build Stage
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY /web .
+COPY . .
 RUN npm install
 
 #Run stage
